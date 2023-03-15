@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparision</title>
+</head>
+
+
+<body>
+    {% if user.is_authenticated %}
+    <div class="container-fluid px-4">
+        <h3 class="">Real-Time & Historical GB Data</h3>
+        <div class="wrapper overflow-x-auto">
+            <iframe class="embed-responsive-item overflow-x-auto" src="https://www.energydashboard.co.uk/live" frameborder="0" allowfullscreen width="1520" height="720"></iframe>
+        </div>
+    </div>
+
+    {% else %}
+    <div style="background-color: rgba(255, 255, 255, 0.75);" class="container w-50 rounded shadow p-3">
+        <div class="text-center">
+            <h1>You are not logged in!</h1>
+            <h2>Login <a href="/login">here.</a></h2>
+        </div>
+    </div>
+
+    {% endif %}
+
+    <script>
+        window.onload = function() {
+            document.getElementById("titlee").innerHTML = "Comparison";
+
+            document.getElementById("dash").classList.remove("active");
+            document.getElementById("comp").classList.add("active");
+        };
+    </script>
+</body>
+</html>
+{% endblock %}
+
+
+<style>
+    .wrapper {
+        position: relative;
+        overflow: hidden;
+        padding-top: 56.25%
+    }
+
+    .wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 2em;
+    }
+</style>
+

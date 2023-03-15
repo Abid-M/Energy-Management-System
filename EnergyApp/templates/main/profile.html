@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appliances</title>
+</head>
+
+
+<body>
+    {% block content %}
+    {% if user.is_authenticated %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 mx-auto m-3 rounded">
+                <div class="d-flex flex-column align-items-center back rounded-lg px-4 text-center shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+                    <h3 class="display-4 text-center mt-2">Profile</h3>
+                    {% if user.userprofile.picture %}
+                    <a href="{{ user.userprofile.picture.url }}">
+                        <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="object-fit:cover; width:25%; border-radius: 50%; height:100%; " src="{{ user.userprofile.picture.url }}" alt="">
+                    </a>
+                    {% else %}
+                    <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:25%" src="{% static 'images/defaultImage.svg' %}" alt="">
+                    {% endif %}                         
+                    <h3 class="mb-4 display-6 bold font-weight-bold">{{ user.username }}
+                    </h3>
+                    <h5 class="mb-2">{{ user.email }}</h5>
+                    <h5 class="mb-2">{{ user.userprofile.dob }}</h5>
+                    <h5 class="mb-2">{{user.userprofile.provider}}</h5>
+                    <br>
+                    <small><u>Date Joined</u>: {{ user.date_joined|date:"F j, Y" }}</small>
+                    <hr style="width:75%;">
+
+                    <div>
+                        <div style="display: inline-block">
+                            <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#profileModal">
+                                Edit Profile
+                            </button>
+                        </div>
+
+                        <div style="display: inline-block">
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete" value="1">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your account?\nThis process cannot be undone.');">
+                                    Delete Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <br>
+                </div> 
+            </div>
+        </div>
+    </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header text-center justify-content-center align-items-center">
+          <h5 class=" text-center justify-content-center align-items-center" id="profileModalLabel">Edit Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+
+                {% csrf_token %}
+                <table> 
+                    <tr>
+                        <div class="align-items-center text-center justify-content-center">
+                            {% if user.userprofile.picture %}
+                                <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:50%" src="{{ user.userprofile.picture.url }}" alt="">
+                                <br>
+                                <form action="" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="delete_pic" value="1">
+                                    <button type="submit" class="btn btn-danger mt-2 mb-2">Delete Profile Picture</button>
+                                </form>
+                            {% else %}
+                                <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:50%" src="{% static 'images/defaultImage.svg' %}" alt="">
+                            {% endif %}      
+                            <br>                  
+                            <input type="file" class="border" name="profile_pic" />     
+                        </div>                 
+                    </tr>
+                    <tr>
+                        <td class="p-3"><b>Username</b><input type="text" name="username" class="form-control" placeholder="{{ user.username}}"></td> <br>     
+                        <td class="p-3"><b>Email</b><input type="email" name="email" class="form-control" placeholder="{{ user.email }}"></td> <br>      
+                    </tr>
+                    <tr>
+                        <td class="p-3"><b>Date of Birth</b><input type="date" name="dob" class="form-control" placeholder="{{user.userprofile.dob}}"></td>
+                        <!-- <td class="p-3"><b>Energy Provider</b><input type="text" name="provider" class="form-control" placeholder="{{user.userprofile.provider}}"></td>    -->
+                        <td class="p-3">
+                            <b>Energy Provider</b>
+                            <select name="provider" class="form-control">
+                                <option selected disabled hidden>{{user.userprofile.provider}}</option>
+                                <option value="EDF">EDF</option>
+                                <option value="British Gas">British Gas</option>
+                                <option value="EON">EON</option>
+                            </select>
+                        </td>
+                </table>
+                </div>
+                <div class="modal-footer text-center align-items-center justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="Save Changes" name="Save Changes" class="btn btn-primary">
+                </div>
+            </form>
+    </div>
+  </div>
+
+    {% else %}
+    <div style="background-color: rgba(255, 255, 255, 0.75);" class="container w-50 rounded shadow p-3">
+        <div class="text-center">
+            <h1>You are not logged in!</h1>
+            <h2>Login <a href="/login">here.</a></h2>
+        </div>
+    </div>
+
+    {% endif %}
+
+    <script>
+        window.onload = function() {
+            document.getElementById("titlee").innerHTML = "Edit Profile";
+            document.getElementById("dash").classList.remove("active");
+        };
+
+        const fileInput = document.querySelector('input[type="file"]');
+        const button = document.querySelector('.btn-upload');
+
+        button.addEventListener('click', () => {
+        fileInput.click();
+        });
+    </script>
+    <!-- {% if messages %}
+    <script>
+        {% for message in messages %}
+            alert("{{ message }}");
+        {% endfor %}
+    </script>
+    {% endif %} -->
+
+    {% endblock %}
+</body>
+
+</html>
+
+<style>
+.back {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+
+</style>
+

@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Usage</title>
+  <script type="text/javascript" src="{% static 'scripts/usage.js' %}"></script>
+</head>
+
+
+<body>
+  {% if user.is_authenticated %}
+  <div class="container-fluid px-4">
+    <div class="row mb-4 justify-content-between">
+      <div class="col-lg-5 p-3 mt-3 me-3 shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+        <h3 class="text-center mb-4"><u>{{ providerInfo.name }} Energy Rates</u></h3>
+        <table class="table table-hover shadow" style="background-color: rgba(255, 255, 255); color:black">
+          <thead>
+            <tr>
+              <th>Charge Type</th>
+              <th>Daily Charge</th>
+              <th>Per kWh</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Electricity</td>
+              <td>{{ providerInfo.elecDailyCharge }}p</td>
+              <td>{{ providerInfo.elecPerKwh }}p</td>
+            </tr>
+            <tr>
+              <td>Gas</td>
+              <td>{{ providerInfo.gasDailyCharge }}p</td>
+              <td>{{ providerInfo.gasPerKwh }}p</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-lg-1">
+        <img src="{% static 'images/energylogo.png' %}" alt="" style="height:10em; width: auto;">
+      </div>
+      <div class="col-lg-5 p-3 mt-3 shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+        <h5 class="text-center mb-4">Your Energy Usage</h5>
+        <p class="mb-1 text-center justify-content-center align-items-center"><strong>Most expensive energy appliance in
+            {{currentMonth}}, with %
+            cost:</strong>
+        </p>
+        <ul class="list-group list-group-flush mb-3 shadow">
+          <li class="list-group-item d-flex justify-content-between align-items-center">Electricity: <span
+              class="text-danger">{{elecCostlyAppliance}}</span> ({{averageeHighest}}%)</li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">Gas: <span
+              class="text-danger">{{gasCostlyAppliance}}</span> ({{averagegHighest}}%)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-center p-4">
+    <div class="d-flex justify-content-center align-items-center me-4 shadow"
+      style="background-color: rgba(1, 1, 1, 0.5); color:white">
+      <div id="elec-appliance-list" class="p-2 overflow-x-auto">
+        <h2 id="elecTitle" class="justify-content-center text-center">Your Electricity Cost Breakdown</h2>
+        <h4 id="currentMonth" class="justify-content-center text-center">[{{ currentMonth }}, 2023]</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover" style="color:white">
+            <thead>
+              <tr>
+                <th>Appliance</th>
+                <th>Wattage</th>
+                <th>Usage</th>
+                <th>Date</th>
+                <th>Est. Daily Costs</th>
+                <th>Est. Weekly Costs</th>
+                <th>Est. Monthly Costs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if userAppliances %}
+              {% for usage in applianceUsage %}
+              {% if usage.appliance.applianceType == 'Electricity' and usage.date|date:"F" == currentMonth %}
+              <tr>
+                <td>{{ usage.appliance.name }}</td>
+                <td>{{ usage.appliance.wattage }} watts</td>
+                <td>{{ usage.duration }}h per day</td>
+                <td>{{ usage.date }}</td>
+                <td>
+                  {% for key, value in applianceDailyCosts.items %}
+                  {% if key == usage.appliance.id %}
+                  <p>£{{ value }}</p>
+                  {% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  {% for key, value in applianceWeeklyCosts.items %}
+                  {% if key == usage.appliance.id %}
+                  <p>£{{ value }}</p>
+                  {% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  {% for key, value in applianceMonthlyCosts.items %}
+                  {% if key == usage.appliance.id %}
+                  <p>£{{ value }}</p>
+                  {% endif %}
+                  {% endfor %}
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="7" class="fw-bold text-center">You do not have any Electricity Appliances added on this
+                  month!</td>
+              </tr>
+              {% endif %}
+              <tr class="text-center">
+                <td colspan="4">
+                  <h5 style="margin: 0; padding: 0;"><i style="color:skyblue">Est. Total Daily Cost:</i>
+                    <u>£{{etotalDailyCosts}}</u>
+                  </h5>
+                </td>
+                <td colspan="3">
+                  <h5 style="margin: 0; padding: 0;"><i style="color:skyblue">Est. Total Weekly Cost:</i>
+                    <u>£{{etotalWeeklyCosts}}</u>
+                  </h5>
+                </td>
+              </tr>
+              <tr class="text-center">
+                <td colspan="7">
+                  <h5 style="margin: 0; padding: 0;"><i style="color:skyblue">Est. Total Monthly Cost:</i>
+                    <u>£{{etotalMonthlyCosts}}</u>
+                  </h5>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" onclick="showPreviousMonth('electricity')">←</button>
+          <button type="button" class="btn btn-secondary" onclick="showNextMonth('electricity')">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- GAS APPLIANCES -->
+  <div class="row align-items-center p-4">
+    <div class="p-3 d-flex justify-content-center align-items-center me-4 shadow"
+      style="background-color: rgba(1, 1, 1, 0.5); color:white">
+      <div id="gas-appliance-list" class="p-2 overflow-x-auto">
+        <h2 id="gasTitle" class="justify-content-center text-center">Your Gas Cost Breakdown</h2>
+        <h4 id="gasCurrentMonth" class="justify-content-center text-center">[{{ currentMonth }}, 2023]</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover" style="color:white">
+            <thead>
+              <tr>
+                <th>Appliance</th>
+                <th>Wattage</th>
+                <th>Usage</th>
+                <th>Date</th>
+                <th>Est. Daily Costs</th>
+                <th>Est. Weekly Costs</th>
+                <th>Est. Monthly Costs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if userAppliances %}
+              {% for usage in applianceUsage %}
+              {% if usage.appliance.applianceType == 'Gas' and usage.date|date:"F" == currentMonth %}
+              <tr>
+                <td>{{ usage.appliance.name }}</td>
+                <td>{{ usage.appliance.wattage }} watts</td>
+                <td>{{ usage.duration }}h per day</td>
+                <td>{{ usage.date }}</td>
+                <td>
+                  {% for key, value in applianceDailyCosts.items %}
+                  {% if key == usage.appliance.id %}
+                  <p>£{{ value }}</p>
+                  {% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  {% for key, value in applianceWeeklyCosts.items %}
+                  {% if key == usage.appliance.id %}
+                  <p>£{{ value }}</p>
+                  {% endif %}
+                  {% endfor %}
+                </td>
+                <td>
+                  {% for key, value in applianceMonthlyCosts.items %}
+                  {% if key == usage.appliance.id %}
+                  <p>£{{ value }}</p>
+                  {% endif %}
+                  {% endfor %}
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="7" class="fw-bold text-center">You do not have any Gas Appliances added on this
+                  month!</td>
+              </tr>
+              {% endif %}
+              <tr class="text-center">
+                <td colspan="4">
+                  <h5 style="margin: 0; padding: 0;"><i style="color:skyblue">Est. Total Daily Cost:</i>
+                    <u>£{{gtotalDailyCosts}}</u>
+                  </h5>
+                </td>
+                <td colspan="3">
+                  <h5 style="margin: 0; padding: 0;"><i style="color:skyblue">Est. Total Weekly Cost:</i>
+                    <u>£{{gtotalWeeklyCosts}}</u>
+                  </h5>
+                </td>
+              </tr>
+              <tr class="text-center">
+                <td colspan="7">
+                  <h5 style="margin: 0; padding: 0;"><i style="color:skyblue">Est. Total Monthly Cost:</i>
+                    <u>£{{gtotalMonthlyCosts}}</u>
+                  </h5>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-secondary" onclick="showPreviousMonth('gas')">←</button>
+          <button type="button" class="btn btn-secondary" onclick="showNextMonth('gas')">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  {% endif %}
+</body>
+
+</html>
+
+<style>
+  table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border-collapse: collapse;
+  }
+</style>
+{% endblock %}

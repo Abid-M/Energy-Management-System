@@ -1,0 +1,167 @@
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Re-Energise - Energy Management System">
+    <meta property="og:description" content="Final Year Project, SUII - Abid Miah">
+    <meta property="og:image" content="https://re-energise.xyz/static/images/energylogo2.png">
+    <meta property="og:url" content="https//re-energise.xyz">
+    <title>Welcome to Re-Energise</title>
+    <link rel="icon" href="{% static 'images/energylogo2.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+</head>
+<body>
+    <section class="container-fluid">
+        <nav class="navbar navbar-expand-md navbar-light" style="font-family: 'Rajdhani';">
+            <div class="container">
+                <a class="navbar-brand align-items-center" href="/" style="font-family:'Righteous'; font-size: 2rem;">
+                    <img src="{% static 'images/energylogo2.png' %}" alt="" style="height: 50px; width: auto; color:black">
+                    Re-Energise
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="btn btn-secondary shadow" href="/homepage" style="font-size: 1.2rem;">Get Started</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container-fluid">
+            <div class="row p-2">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-4 text-center justify-content-center align-items-center pt-3" style="color: black;">
+                    <h1 class="display-5 fw-bold">Welcome to Re-Energise</h1>
+                    <p class="lead">Re-Energise is an energy management system that helps you to monitor and track your energy usage. The system is designed to help you identify & reduce your energy costs, minimise your carbon footprint, and improve your overall energy efficiency.</p>
+                    <a href="/homepage"><button class="btn btn-warning w-100 shadow lead" style="font-family: 'Rajdhani'; font-size: 1.2rem";>Get Started</button></a>
+                </div>
+                <div class="col-md-4 justify-content-center text-center align-items-center">
+                    <img src="{% static 'images/energyimage.png' %}" alt="" class="img-fluid">
+                </div>
+                <div class="col-md-2">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-12 text-center">
+                    <h2 class="display-6">The Features</h2>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 text-center mb-2">
+                    <div class="card shadow" style="background-color: rgba(0, 0, 0, 0.55); color:white">
+                        <div class="card-body">
+                            <i class="fa-solid fa-chart-line fa-3x pb-1"></i>
+                            <h3 class="card-title">Usage Tracking</h3>
+                            <p class="card-text lead">
+                                With Re-Energise, you can track your energy usage for specific appliances, 
+                                allowing you to identify areas where you can reduce your consumption and save money on your energy bills.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-2">
+                    <div class="card shadow" style="background-color: rgba(0, 0, 0, 0.55); color:white">
+                        <div class="card-body">
+                            <i class="fa-solid fa-hand-holding-dollar fa-3x pb-1"></i>                            
+                            <h3 class="card-title">Budget Limits</h3>
+                            <p class="card-text lead">
+                                Re-Energise allows you to set budget costs that will provide you with a display on how far you have used up your budget. 
+                                This feature helps you to stay within your energy budget and avoid unexpected costs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-2">
+                    <div class="card shadow" style="background-color: rgba(0, 0, 0, 0.55); color:white">
+                        <div class="card-body">
+                            <i class="fa fa-question-circle fa-3x pb-1"></i>
+                            <h3 class="card-title">Advice & Tips</h3>
+                            <p class="card-text lead">
+                                Re-Energise not only helps you track your energy usage for specific appliances but also 
+                                provides valuable advice and tips on reducing your energy consumption and saving money on your energy bills.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center mb-2">
+                    <div class="card shadow" style="background-color: rgba(0, 0, 0, 0.55); color:white">
+                        <div class="card-body">
+                            <i class="fa-solid fa-comments fa-3x pb-1"></i>
+                            <h3 class="card-title">Community Forum</h3>
+                            <p class="card-text lead">
+                                Re-Energise provides a community forum feature where you can discuss energy-saving strategies or anything with other users. 
+                                This feature allows you to reply to posts and comments, exchange ideas,
+                                and collaborate with other users.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="d-flex flex-column justify-content-center align-items-center">
+        <div class="copyright font-weight-bold">
+            <p class="font-weight-bold rounded" style="background-color: rgba(255, 255, 255, 0.25);">
+            <i style="color:black">Copyright &copy;</i> 2023 <i>Abid Miah</i>
+            </p>
+        </div>
+        </section>
+    </section>
+
+</body>
+</html>
+
+<style>
+.btn-warning:hover {
+  color: red;
+}
+
+.copyright {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 10px;
+  }
+  
+@font-face {
+    font-family: 'Righteous';
+    src: url(../static/customfont/Righteous-Regular.ttf);    
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    src: url(../static/customfont/Rajdhani-Regular.ttf);
+}
+    body {
+        background-image: url(../static/images/download.jpeg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        background-color: rgba(255, 255, 255, 0.5); /* Change the opacity value as needed */
+    }
+
+    
+    .back {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .hovs a {
+        color: black;
+        text-decoration: none;
+
+    }
+    .hovs:hover a {
+        color:lightseagreen
+    }
+    
+</style>

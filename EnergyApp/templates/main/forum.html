@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="public/lib/sceditor/minified/themes/default.min.css" />
+    <title>Forum</title>
+</head>
+
+
+<body>
+    {% if user.is_authenticated %}
+    <div class="container-fluid">
+        <div class="row rounded p-3 justify-content-center">
+            <div class="col-lg-7 col-12 mb-4 p-4 rounded shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+                <h3 class="border-bottom pb-1 mb-4">Discussions
+                    <button class="btn btn-success btn-sm float-end" data-bs-toggle="modal" data-bs-target="#postModal"><i class="fas fa-plus"></i> Create New</button>
+                </h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover bg-light">
+                        <thead>
+                            <tr style="background-color: lightgrey;">
+                                <th title="Discussion List"><i class="fas fa-tasks" aria-hidden="true"></i> Posts</th>
+                                <th title="Created By"><i class="fa fa-user" aria-hidden="true"></i> Created</th>
+                                <th title="Total Replies"><i class="fas fa-chart-line"></i> Stats</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if userPosts %}
+                            {% for post in userPosts %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        <a href="{% url 'post' post.id %}" class="">{{ post.title }}</a>
+                                        <span class="badge bg-dark float-end m-1">{{ post.createdBy.provider }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small>by <u>{{ post.createdBy }}</u></small> <br>
+                                    <small>{{ post.createdAt }}</small>
+                                </td>
+                                <td>{{ post.comments.count }} reply(s)</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No Forum Posts</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        
+            <div class="col-lg-2 col-12">
+                <div class="list-group mb-4 shadow">
+                    <li class="list-group-item list-group-item-warning"><strong>Recent Discussion</strong></li>
+                    {% for post in sortedPosts %}
+                    {% if forloop.counter <= 3 %}
+                        <div>
+                            <a href="{% url 'post' post.0.id %}" class="list-group-item list-group-item-action">{{ post.0.title }}</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+                <div class="list-group mb-4 shadow">
+                    <li class="list-group-item list-group-item-danger"><strong>Forum Statistics</strong></li>
+
+                    <div class="list-group-item list-group-item-action">
+                        <div><b>Total Posts:</b>
+                            <span class="float-end">{{ totalUserPosts }}</span>
+                        </div>
+                        <div><b>Total Members:</b>
+                            <span class="float-end">{{ totalMembers }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header text-center justify-content-center align-items-center">
+                  <h5 class=" text-center justify-content-center align-items-center" id="postModalLabel">Add New Post</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    <form action="" method="POST">
+                        <div class="modal-body">
+        
+                        {% csrf_token %}
+                        <span>Title:*</span>
+                        <input type="text" class="form-control" name="post_title" placeholder="Enter title" required />
+                        <br>
+                        <span>Description:*</span>
+                        <textarea id="editor" class="form-control" rows="4" name="post_description" placeholder="Enter description" required></textarea>
+                        <br>
+                        </div>
+                        <div class="modal-footer text-center align-items-center justify-content-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <input type="submit" value="Save Changes" name="Save Changes" class="btn btn-primary">
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div style="background-color: rgba(255, 255, 255, 0.75);" class="container w-50 rounded shadow p-3">
+        <div class="text-center">
+            <h1>You are not logged in!</h1>
+            <h2>Login <a href="/login">here.</a></h2>
+        </div>
+    </div>
+
+    {% endif %}
+
+    <script>
+        window.onload = function() {
+            document.getElementById("titlee").innerHTML = "User Forum";
+
+            document.getElementById("dash").classList.remove("active");
+            document.getElementById("forum").classList.add("active");
+        };
+    </script>
+</body>
+
+</html>
+{% endblock %}
+

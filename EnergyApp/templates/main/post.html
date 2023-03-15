@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="public/lib/sceditor/minified/themes/default.min.css" />
+    <title>Forum Post</title>
+</head>
+
+
+<body>
+    {% if user.is_authenticated %}
+    <div class="container-fluid px-4">
+        <div class="row rounded p-2 justify-content-center">
+            <div class="col-lg-9 col-12 p-4 rounded shadow" style="background-color: rgba(1, 1, 1, 0.5);">
+            <h3 style="color:white">{{ specificPost.title }}
+                <a href="/forum" class="btn btn-success btn-sm float-end" style="color:white"><i class="fas fa-arrow-left"></i> Discussion List</a>
+            </h3>
+            <hr class="border-white mb-4" />
+                    
+            <div class="card">
+                <div class="card-header" style="display: flex; align-items: center;">
+                    <div style="flex: 1;" class="fw-bold">{{ specificPost.title }}</div>
+                    {% if request.user == specificPost.createdBy.user %}
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete" value="1">
+                        <button type="submit" style="all: unset; cursor: pointer" onclick="return confirm('Are you sure you want to delete your post?\nThis process cannot be undone.')">
+                            <i class="fa-solid fa-trash-can" style="color:red"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+              <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-2 justify-content-center text-center">
+                            {% if specificPost.createdBy.picture %}
+                            <a href="{{ specificPost.createdBy.picture.url }}">
+                                <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:75%" src="{{ specificPost.createdBy.picture.url }}" alt="">
+                            </a>
+                            {% else %}
+                            <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:75%" src="{% static 'images/defaultImage.svg' %}" alt="">
+                            {% endif %}                              
+                          <h6 class="mt-2 fw-bold">{{ specificPost.createdBy }}</h6>
+                          <small class="text-muted fw-bold">{{ specificPost.createdBy.provider }}</small>
+                          <br>
+                          <small class="text-muted m-2 p-2"><u>Joined</u>: {{ specificPost.createdBy.user.date_joined|date:"F j, Y" }}</small>
+                          <br>
+                    </div>
+                    <div class="col-sm-9 border-start border-secondary">
+                        <p>{{ specificPost.description }}</p>
+                    </div>
+                </div>
+              </div>
+              <div class="card-footer text-muted">
+                <b>Posted on: </b>{{ specificPost.createdAt }}
+              </div>
+            </div>
+            <hr class="border-white mb-4 mt-4" />
+
+            <p class="fw-bold" style="color:white"><i class="fa fa-reply"></i> Replies/Comments</p>
+            <!-- Replies/Comments -->
+            {% if postComments %}
+            {% for comment in postComments %}
+            <div class="card">
+              <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-2 justify-content-center text-center">
+                        {% if comment.createdBy.picture %}
+                        <a href="{{ comment.createdBy.picture.url }}">
+                            <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:75%" src="{{ comment.createdBy.picture.url }}" alt="">
+                        </a>
+                        {% else %}
+                        <img class="img-fluid rounded-circle align-items-center text-center justify-content-center" style="width:75%" src="{% static 'images/defaultImage.svg' %}" alt="">
+                        {% endif %}                            
+                        <h6 class="mt-2 fw-bold">{{ comment.createdBy }}</h6>
+                        <small class="text-muted fw-bold">{{ comment.createdBy.provider }}</small>
+                        <br>
+                        <small class="text-muted m-2 p-2"><u>Joined</u>: {{ comment.createdBy.user.date_joined|date:"F j, Y" }}</small>
+                        <br>
+                    </div>
+                    <div class="col-sm-9 border-start border-secondary">
+                        <p>{{ comment.body }}</p>
+                    </div>
+                </div>
+              </div>
+              <div class="card-footer text-muted">
+                <b>Posted on: </b>{{ comment.createdAt }}
+              </div>
+            </div>
+            <br>
+            {% endfor %}
+            {% else %}
+            <div class="display-6" style="color:white">No comments.</div>
+            {% endif %}
+            &nbsp;
+
+            <hr class="border-white" />
+
+            <h4 class="mb-1 mt-3 p-2" style="color:white">Add Reply:</h4>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="table-responsive mt-1">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <textarea class="form-control mb-2" placeholder="Reply Body*" rows="4" name="reply_body" required></textarea>
+                                    <button type="submit" class="btn btn-primary" name="">Submit</button>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+
+
+
+
+
+
+
+    {% else %}
+        <div style="background-color: rgba(255, 255, 255, 0.75);" class="container w-50 rounded shadow p-3">
+            <div class="text-center">
+                <h1>You are not logged in!</h1>
+                <h2>Login <a href="/login">here.</a></h2>
+            </div>
+        </div>
+    </div>
+
+
+    {% endif %}
+
+    <script>
+        window.onload = function() {
+            document.getElementById("titlee").innerHTML = "Forum Post";
+
+            document.getElementById("dash").classList.remove("active");
+            document.getElementById("forum").classList.add("active");
+        };
+    </script>
+
+</body>
+
+</html>
+{% endblock %}

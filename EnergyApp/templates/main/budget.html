@@ -1,0 +1,555 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget Costs</title>
+</head>
+
+
+<body>
+  {% if user.is_authenticated %}
+  <div class="container-fluid px-4">
+    <div class="d-flex justify-content-center mb-2">
+      <div class="text-center p-4 shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+        <h4 class="display-6">Your Budget Costs for {{currentMonth}}</h4>
+        <h6><i>(Note: You can only set/update budget costs for the current month)</i></h6>
+      </div>
+    </div>
+
+    <br>
+    <!-- Daily Cost Budget -->
+    <div class="row">
+      <div class="col-md-4 mb-5">
+        <div class="card shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+          <div class="card-body">
+            <h5 class="card-title text-center align-items-center justify-content-center">Daily Cost Budget</h5>
+            <div class="row">
+              <div class="col">
+                <table class="table" style="color:white">
+                  <tbody>
+                    <tr>
+                      <td style="min-height:100px">Est. Daily Electric Cost:</td>
+                      <td style="min-height:100px" class="fw-bold">£{{etotalDailyCosts}}</td>
+                    </tr>
+                    {% if budgetCosts.first.dailyElecCostBudget and budgetCosts.first.dailyElecCostBudget != 0.00 %}
+                    <tr>
+                      <td style="min-height:100px">Electric Budget:</td>
+                      {% if budgetCosts.first.dailyElecCostBudget == 0.00 %}
+                      <td>Not Set</td>
+                      {% else %}
+                      <td style="min-height:100px" class="fw-bold">£{{budgetCosts.first.dailyElecCostBudget}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="min-height:100px">
+                        <div class="progress">
+                          {% if eDailyPercent >= 100 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
+                            style="width: 100%;" aria-valuenow="{{ eDailyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% elif eDailyPercent >= 50 %}
+                            <div class="progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                              style="width: {{ eDailyPercent }}%;" aria-valuenow="{{ eDailyPercent }}" aria-valuemin="0"
+                              aria-valuemax="100">
+                            </div>
+                          {% else %}
+                          <div class="progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                            style="width: {{ eDailyPercent }}%;" aria-valuenow="{{ eDailyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center" style="color:white">
+                          <small style="color:lightgray">0%</small>
+                          <small style="color:lightgray">100%</small>
+                        </div>
+                        {% if eDailyPercent >= 100 %}
+                        <p class="mt-1 fw-bold text-center justify-content-center align-items-center" style="color:orange">Over
+                          budget</p>
+                        {% else %}
+                        <p class="mt-1 text-center fst-italic justify-content-center align-items-center">You have used
+                          <u style="color: skyblue" class="fw-bold">{{ eDailyPercent }}%</u> of your budget
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Budget:</td>
+                      <td>Not Set</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="col">
+                <table class="table" style="color:white">
+                  <tbody>
+                    <tr>
+                      <td style="min-height:100px">Est. Daily Gas Cost:</td>
+                      <td style="min-height:100px" class="fw-bold">£{{gtotalDailyCosts}}</td>
+                    </tr>
+                    {% if budgetCosts.first.dailyGasCostBudget and budgetCosts.first.dailyGasCostBudget != 0.00 %}
+                    <tr>
+                      <td style="min-height:100px">Gas Budget:</td>
+                      {% if budgetCosts.first.dailyGasCostBudget == 0.00 %}
+                      <td>Not Set</td>
+                      {% else %}
+                      <td style="min-height:100px" class="fw-bold">£{{budgetCosts.first.dailyGasCostBudget}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="min-height:100px">
+                        <div class="progress">
+                          {% if gDailyPercent >= 100 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
+                            style="width: 100%;" aria-valuenow="{{ gDailyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% elif gDailyPercent >= 50 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                            style="width: {{ gDailyPercent }}%;" aria-valuenow="{{ gDailyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% else %}
+                          <div class="progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                            style="width: {{ gDailyPercent }}%;" aria-valuenow="{{ gDailyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100"></div>
+                          {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small style="color:lightgray">0%</small>
+                          <small style="color:lightgray">100%</small>
+                        </div>
+                        {% if gDailyPercent >= 100 %}
+                        <p class="text-danger mt-1 fw-bold text-center justify-content-center align-items-center">Over
+                          budget</p>
+                        {% else %}
+                        <p class="mt-1 text-center fst-italic justify-content-center align-items-center">You have used
+                          <u style="color: skyblue" class="fw-bold">{{ gDailyPercent }}%</u> of your budget
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Budget:</td>
+                      <td>Not Set</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Cost Budget -->
+
+      <div class="col-md-4 mb-5">
+        <div class="card shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+          <div class="card-body">
+            <h5 class="card-title text-center align-items-center justify-content-center">Weekly Cost Budget</h5>
+            <div class="row">
+              <div class="col">
+                <table class="table" style="color:white">
+                  <tbody>
+                    <tr>
+                      <td style="min-height:100px">Est. Weekly Electric Cost:</td>
+                      <td style="min-height:100px" class="fw-bold">£{{etotalWeeklyCosts}}</td>
+                    </tr>
+                    {% if budgetCosts.first.weeklyElecCostBudget and budgetCosts.first.weeklyElecCostBudget != 0.00 %}
+                    <tr>
+                      <td style="min-height:100px">Electric Budget:</td>
+                      {% if budgetCosts.first.weeklyElecCostBudget == 0 %}
+                      <td>Not Set</td>
+                      {% else %}
+                      <td style="min-height:100px" class="fw-bold">£{{budgetCosts.first.weeklyElecCostBudget}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="min-height:100px">
+                        <div class="progress">
+                          {% if eWeeklyPercent >= 100 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
+                            style="width: 100%;" aria-valuenow="{{ eWeeklyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% elif eWeeklyPercent >= 50 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                            style="width: {{ eWeeklyPercent }}%;" aria-valuenow="{{ eWeeklyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% else %}
+                          <div class="progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                            style="width: {{ eWeeklyPercent }}%;" aria-valuenow="{{ eWeeklyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100"></div>
+                          {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small style="color:lightgray">0%</small>
+                          <small style="color:lightgray">100%</small>
+                        </div>
+                        {% if eWeeklyPercent >= 100 %}
+                        <p class="text-danger mt-1 fw-bold text-center justify-content-center align-items-center">Over budget</p>
+                        {% else %}
+                        <p class="mt-1 text-center fst-italic justify-content-center align-items-center">You have used
+                          <u style="color: skyblue" class="fw-bold">{{ eWeeklyPercent }}%</u> of your budget
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Budget:</td>
+                      <td>Not Set</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="col">
+                <table class="table" style="color:white">
+                  <tbody>
+                    <tr>
+                      <td style="min-height:100px">Est. Weekly Gas Cost:</td>
+                      <td style="min-height:100px" class="fw-bold">£{{gtotalWeeklyCosts}}</td>
+                    </tr>
+                    {% if budgetCosts.first.weeklyGasCostBudget and budgetCosts.first.weeklyGasCostBudget != 0 %}
+                    <tr>
+                      <td style="min-height:100px">Gas Budget:</td>
+                      {% if budgetCosts.first.weeklyGasCostBudget == 0.00 %}
+                      <td>Not Set</td>
+                      {% else %}
+                      <td style="min-height:100px" class="fw-bold">£{{budgetCosts.first.weeklyGasCostBudget}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="min-height:100px">
+                        <div class="progress">
+                          {% if gWeeklyPercent >= 100 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
+                            style="width: 100%;" aria-valuenow="{{ gWeeklyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% elif gWeeklyPercent >= 50 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                            style="width: {{ gWeeklyPercent }}%;" aria-valuenow="{{ gWeeklyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% else %}
+                          <div class="progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                            style="width: {{ gWeeklyPercent }}%;" aria-valuenow="{{ gWeeklyPercent }}" aria-valuemin="0" aria-valuemax="100">
+                          </div>
+                          {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small style="color:lightgray">0%</small>
+                          <small style="color:lightgray">100%</small>
+                        </div>
+                        {% if gWeeklyPercent >= 100 %}
+                        <p class="text-danger mt-1 fw-bold text-center justify-content-center align-items-center">Over budget</p>
+                        {% else %}
+                        <p class="mt-1 text-center fst-italic justify-content-center align-items-center">You have used
+                          <u style="color: skyblue" class="fw-bold">{{ gWeeklyPercent }}%</u> of your budget
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Budget:</td>
+                      <td>Not Set</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Budget Costs -->
+      <div class="col-md-4 mb-5">
+        <div class="card shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+          <div class="card-body">
+            <h5 class="card-title text-center align-items-center justify-content-center">Monthly Cost Budget</h5>
+            <div class="row">
+              <div class="col">
+                <table class="table" style="color:white">
+                  <tbody>
+                    <tr>
+                      <td style="min-height:100px">Est. Monthly Electric Cost:</td>
+                      <td style="min-height:100px" class="fw-bold">£{{etotalMonthlyCosts}}</td>
+                    </tr>
+                    {% if budgetCosts.first.monthlyElecCostBudget and budgetCosts.first.monthlyElecCostBudget != 0.00 %}
+                    <tr>
+                      <td style="min-height:100px">Electric Budget:</td>
+                      {% if budgetCosts.first.monthlyElecCostBudget == 0.00 %}
+                      <td>Not Set</td>
+                      {% else %}
+                      <td style="min-height:100px" class="fw-bold">£{{budgetCosts.first.monthlyElecCostBudget}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="min-height:100px">
+                        <div class="progress">
+                          {% if eMonthlyPercent >= 100 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
+                            style="width: 100%;" aria-valuenow="{{ eMonthlyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% elif eMonthlyPercent >= 50 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                            style="width: {{ eMonthlyPercent }}%;" aria-valuenow="{{ eMonthlyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% else %}
+                          <div class="progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                            style="width: {{ eMonthlyPercent }}%;" aria-valuenow="{{ eMonthlyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100"></div>
+                          {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small style="color:lightgray">0%</small>
+                          <small style="color:lightgray">100%</small>
+                        </div>
+                        {% if eMonthlyPercent >= 100 %}
+                        <p class="text-danger mt-1 fw-bold text-center justify-content-center align-items-center">Over budget</p>
+                        {% else %}
+                        <p class="mt-1 text-center fst-italic justify-content-center align-items-center">You have used
+                          <u style="color: skyblue" class="fw-bold">{{ eMonthlyPercent }}%</u> of your budget
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Budget:</td>
+                      <td>Not Set</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="col">
+                <table class="table" style="color:white">
+                  <tbody>
+                    <tr>
+                      <td style="min-height:100px">Est. Monthly Gas Cost:</td>
+                      <td style="min-height:100px" class="fw-bold">£{{gtotalMonthlyCosts}}</td>
+                    </tr>
+                    {% if budgetCosts.first.monthlyGasCostBudget and budgetCosts.first.monthlyGasCostBudget != 0.00 %}
+                    <tr>
+                      <td style="min-height:100px">Gas Budget:</td>
+                      {% if budgetCosts.first.monthlyGasCostBudget == 0.0 %}
+                      <td>Not Set</td>
+                      {% else %}
+                      <td style="min-height:100px" class="fw-bold">£{{budgetCosts.first.monthlyGasCostBudget}}</td>
+                      {% endif %}
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="min-height:100px">
+                        <div class="progress">
+                          {% if gMonthlyPercent >= 100 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-danger" role="progressbar"
+                            style="width: 100%;" aria-valuenow="{{ gMonthlyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% elif gMonthlyPercent >= 50 %}
+                          <div class="progress-bar-striped progress-bar-animated bg-warning" role="progressbar"
+                            style="width: {{ gMonthlyPercent }}%;" aria-valuenow="{{ gMonthlyPercent }}" aria-valuemin="0"
+                            aria-valuemax="100">
+                          </div>
+                          {% else %}
+                          <div class="progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                            style="width: {{ gMonthlyPercent }}%;" aria-valuenow="{{ gMonthlyPercent }}" aria-valuemin="0" aria-valuemax="100">
+                          </div>
+                          {% endif %}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small style="color:lightgray">0%</small>
+                          <small style="color:lightgray">100%</small>
+                        </div>
+                        {% if gMonthlyPercent >= 100 %}
+                        <p class="text-danger mt-1 fw-bold text-center justify-content-center align-items-center">Over budget</p>
+                        {% else %}
+                        <p class="mt-1 text-center fst-italic justify-content-center align-items-center">You have used
+                          <u style="color: skyblue" class="fw-bold">{{ gMonthlyPercent }}%</u> of your budget
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td>Budget:</td>
+                      <td>Not Set</td>
+                    </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Electric budgets Form -->
+
+    <form method="POST" class="row g-3 rounded p-3 shadow" id="elec-budget" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+      {% csrf_token %}
+      <div class="text-center m-2">
+        <h2><u style="color: skyblue">Electricity</u></h2>
+      </div>
+      <div class="col-md-4 mb-2 text-center justify-content-center align-items-center">
+        <label for="daily_goal" class="form-label fw-bold">Daily Cost Budget</label>
+        <input type="number" class="form-control" id="edaily_goal" name="edaily_goal" step="0.01"
+          placeholder="Enter daily cost budget" min="0">
+      </div>
+      <div class="col-md-4 mb-2 text-center justify-content-center align-items-center">
+        <label for="weekly_goal" class="form-label fw-bold">Weekly Cost Budget</label>
+        <input type="number" class="form-control" id="eweekly_goal" name="eweekly_goal"
+          placeholder="Enter weekly cost budget" step="0.01" min="0">
+      </div>
+      <div class="col-md-4 mb-2 text-center justify-content-center align-items-center">
+        <label for="monthly_goal" class="form-label fw-bold">Monthly Cost Budget</label>
+        <input type="number" class="form-control" id="emonthly_goal" name="emonthly_goal"
+          placeholder="Enter monthly cost budget" step="0.01" min="0">
+      </div>
+      <div class="col-12 text-center justify-content-center align-items-center">
+        <input type="hidden" name="electricity" value="1">
+        <button type="submit" class="btn btn-success">Save</button>
+      </div>
+    </form>
+    <br>
+    <!-- Gas budgets Form -->
+    <form method="POST" class="row g-3 rounded p-3 shadow" id="gas-budget" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+      {% csrf_token %}
+      <div class="text-center m-2">
+        <h2><u style="color: skyblue">Gas</u></h2>
+      </div>
+      <div class="col-md-4 mb-2 text-center justify-content-center align-items-center">
+        <label for="daily_goal" class="form-label fw-bold">Daily Cost Budget</label>
+        <input type="number" class="form-control" id="gdaily_goal" name="gdaily_goal" step="0.01"
+          placeholder="Enter daily cost budget" min="0">
+      </div>
+      <div class="col-md-4 mb-2 text-center justify-content-center align-items-center">
+        <label for="weekly_goal" class="form-label fw-bold">Weekly Cost Budget</label>
+        <input type="number" class="form-control" id="gweekly_goal" name="gweekly_goal"
+          placeholder="Enter weekly cost budget" step="0.01" min="0">
+      </div>
+      <div class="col-md-4 mb-2 text-center justify-content-center align-items-center">
+        <label for="monthly_goal" class="form-label fw-bold">Monthly Cost Budget</label>
+        <input type="number" class="form-control" id="gmonthly_goal" name="gmonthly_goal"
+          placeholder="Enter monthly cost budget" step="0.01" min="0">
+      </div>
+      <div class="col-12 text-center justify-content-center align-items-center">
+        <input type="hidden" name="gas" value="1">
+        <button type="submit" class="btn btn-success">Save</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+
+</body>
+</html>
+<script>
+  window.onload = function () {
+      document.getElementById("titlee").innerHTML = "Budget Costs";
+
+      document.getElementById("dash").classList.remove("active");
+      document.getElementById("budget").classList.add("active");
+  };
+  const eform = document.querySelector('#elec-budget');
+  const gform2 = document.querySelector('#gas-budget');
+
+  eform.addEventListener('submit', (event) => {
+    event.preventDefault();
+    let form = event.currentTarget
+    // Submit the form using AJAX
+    const formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (response.ok) {
+            showAlert('success', 'Added/Updated Budget Successfully');
+        } else {
+            showAlert('danger', 'An error occurred. Please try again.');
+        }
+    })
+    .catch(error => {
+        showAlert('danger', 'An error occurred. Please try again.');
+    });
+  });
+
+  gform2.addEventListener('submit', (event) => {
+    event.preventDefault();
+    let form = event.currentTarget
+    // Submit the form using AJAX
+    const formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => {
+        if (response.ok) {
+            showAlert2('success', 'Added/Updated Budget Successfully');
+        } else {
+            showAlert2('danger', 'An error occurred. Please try again.');
+        }
+    })
+    .catch(error => {
+        showAlert2('danger', 'An error occurred. Please try again.');
+    });
+  });
+
+function showAlert(type, message) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} mt-3 text-center justify-content-center align-items-center`;
+    alert.textContent = message;
+    eform.prepend(alert);
+
+    // Remove the alert after 3 seconds
+    setTimeout(() => {
+        location.reload();
+        alert.remove();
+    }, 3000);
+}
+
+function showAlert2(type, message) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} mt-3 text-center justify-content-center align-items-center`;
+    alert.textContent = message;
+    gform2.prepend(alert);
+
+    // Remove the alert after 3 seconds
+    setTimeout(() => {
+        location.reload();
+        alert.remove();
+    }, 3000);
+}
+</script>
+<style>
+  .table {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table-row {
+    display: flex;
+    align-items: center;
+  }
+</style>
+{% endblock %}

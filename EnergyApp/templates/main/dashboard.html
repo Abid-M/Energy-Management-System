@@ -1,0 +1,741 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/energylogo2.png' %}">
+  <title>Dashboard</title>
+</head>
+<body>
+  <div class="d-flex" id="wrapper">
+      {% if user.is_authenticated %}
+      <div class="container-fluid px-4">
+          <div class="row me-1">
+            <div class="col-md-4 p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+              <h3 class="fw-bold mb-3 text-center">Overview</h3>
+              <div class="row mb-3">
+                <div class="col-6 p-2">
+                  <div class="text-center">
+                    <i class="fas fa-bolt fa-2x text-primary"></i>
+                  </div>
+                  <p class="lead text-center mt-2 mb-0">Today's Electric Cost</p>
+                  <p class="lead text-center fw-bold" style="color:blue">£{{ todayEDailyCost }}</p>
+                </div>
+                <div class="col-6 p-2">
+                  <div class="text-center">
+                    <i class="fas fa-fire fa-2x" style="color:orange"></i>
+                  </div>
+                  <p class="lead text-center mt-2 mb-0">Today's Gas Cost</p>
+                  <p class="lead text-center fw-bold" style="color:orange">£{{ todayGDailyCost }}</p>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-12 ps-4 pe-4">
+                  {% if budget %}
+                    <p class="lead mb-0 text-center">Your Daily Electric Budget for {{currentMonth}}:</p>
+                    {% if budget.dailyElecCostBudget == 0.00 %}
+                    <p class="fw-bold lead text-center" style="color:blue">Not Set</p>
+                    {% else %}
+                    <p class="fw-bold lead text-center" style="color:blue">£{{ budget.dailyElecCostBudget }}</p>
+                    {% endif %}
+                  {% else %}
+                    <p class="lead mb-0 text-center">Your Daily Electric Budget for {{currentMonth}}:</p>
+                    <p class="fw-bold lead text-center" style="color:blue">Not set</p>
+                  {% endif %}
+                  {% if budget.dailyElecCostBudget != 0 and budget.dailyElecCostBudget %}
+                  {% if eDailyPercent >= 100 %}
+                  <div class="progress">
+                    <div class="progress-bar-striped progress-bar-animated" role="progressbar" style="background-color: blue;  width: 100%;" aria-valuenow="{{eDailyPercent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="lead text-end mt-2 mb-0 fw-bold">Over Budget!</p>
+                  {% else %}
+                  <div class="progress">
+                    <div class="progress-bar-striped progress-bar-animated" role="progressbar" style="background-color: blue;  width: {{eDailyPercent}}%;" aria-valuenow="{{gDailyPercent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="lead text-end mt-2 mb-0">{{eDailyPercent}}% used</p>
+                  {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-12 ps-4 pe-4">
+                  {% if budget %}
+                    <p class="lead mb-0 text-center">Your Daily Gas Budget for {{currentMonth}}:</p>
+                    {% if budget.dailyGasCostBudget == 0.00 %}
+                    <p class="fw-bold lead text-center" style="color:orange">Not Set</p>
+                    {% else %}
+                    <p class="fw-bold lead text-center" style="color:orange">£{{ budget.dailyGasCostBudget }}</p>
+                    {% endif %}
+                  {% else %}
+                    <p class="lead mb-0 text-center">Your Daily Gas Budget for {{currentMonth}}:</p>
+                    <p class="fw-bold lead text-center" style="color:orange">Not set</p>
+                  {% endif %}
+                  {% if budget.dailyGasCostBudget != 0 and budget.dailyGasCostBudget %}
+                  {% if gDailyPercent < 100 %}
+                  <div class="progress">
+                    <div class="progress-bar-striped progress-bar-animated" role="progressbar" style="background-color: orange;  width: {{gDailyPercent}}%;" aria-valuenow="{{gDailyPercent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="lead text-end mt-2 mb-0">{{gDailyPercent}}% used</p>
+                  {% else %}
+                  <div class="progress">
+                    <div class="progress-bar-striped progress-bar-animated" role="progressbar" style="background-color: orange;  width: 100%;" aria-valuenow="{{gDailyPercent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <p class="lead text-end mt-2 mb-0 fw-bold">Over Budget!</p>
+                  {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-2 m-2 p-4 mx-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+              <h3 class="text-center fw-bold">Quick Add</h3>
+              <label for="appliance" class="lead">New Appliance</label>
+              <div class="d-grid gap-2">
+                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#electricModal">Add Electric Appliance</button>
+                <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#gasModal">Add Gas Appliance</button>
+              </div>
+            
+              <hr>
+              <label for="appliance" class="lead">New Budget Costs</label>
+              <div class="d-grid gap-2">
+                <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#dailyBudgetModal">Add Daily Budget Cost for {{currentMonth}}</button>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#weeklyBudgetModal">Add Weekly Budget Cost for {{currentMonth}}</button>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#monthlyBudgetModal">Add Monthly Budget Cost for {{currentMonth}}</button>
+              </div>
+            </div>
+            
+            <div class="col-md-3 m-2 p-4 lead shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+              <div class="text-center mb-3">
+                <h3 class="fw-bold">{{providerInfo.name}} Energy Rates</h3>
+              </div>
+              <div class="row text-center">
+                <div class="col-6">
+                  <p class="fw-bold mb-1">Electricity</p>
+                  <p class="mb-0">Daily Charge: {{providerInfo.elecDailyCharge}}p</p>
+                  <p class="mb-0">Per kWh: {{providerInfo.elecPerKwh}}p</p>
+                </div>
+                <div class="col-6">
+                  <p class="fw-bold mb-1">Gas</p>
+                  <p class="mb-0">Daily Charge: {{providerInfo.gasDailyCharge}}p</p>
+                  <p class="mb-0">Per kWh: {{providerInfo.gasPerKwh}}p</p>
+                </div>
+              </div>
+              <div class="justify-content-center text-center align-items-center mt-3">
+              {% if providerInfo.name == 'EDF' %}
+              <div class="shadow-lg rounded p-2" style="background-color: rgba(255, 255, 255, 0.50); color:white;">
+                <img class="img-fluid m-2 justify-content-center text-center align-items-center" style="width: 35%;" src="{% static 'images/edf.png' %}" alt="">
+              </div>
+              {% endif %}
+              {% if providerInfo.name == 'British Gas' %}
+              <div class="shadow-lg rounded p-2" style="background-color: rgba(255, 255, 255, 0.50); color:white;">
+                <img class="img-fluid m-2 justify-content-center text-center align-items-center" style="width: 35%;" src="{% static 'images/britishgas.png' %}" alt="">
+              </div>
+              {% endif %}
+              {% if providerInfo.name == 'EON' %}
+              <div class="shadow-lg rounded p-2" style="background-color: rgba(255, 255, 255, 0.50); color:white;">
+                <img class="img-fluid m-2 justify-content-center text-center align-items-center" style="width: 35%;" src="{% static 'images/eon.png' %}" alt="">
+              </div>
+              {% endif %}
+              </div>
+            </div>
+              <div class="col-md m-2 p-4 lead shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+                <div class="text-center mb-3">
+                  <h3 class="fw-bold">Discussion Forum</h3>
+                  <div class="list-group mb-4 shadow">
+                    <li class="list-group-item list-group-item-warning"><strong>Recents</strong></li>
+                    {% for post in sortedPosts %}
+                    {% if forloop.counter <= 3 %}
+                        <div>
+                            <a href="{% url 'post' post.0.id %}" class="list-group-item list-group-item-action">{{ post.0.title }}</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+              </div>   
+            </div>           
+          </div>
+
+          <div class="row me-1">
+            <div class="col-md-3 p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+              {% if averageeHighest == 0 and averagegHighest == 0 %}
+              <div class="text-center">
+                <h6 class="lead">-- No Appliances Added --</h6>
+                <h5 class="lead"><i>Please add appliances to display piechart</i></h5>
+              </div>
+              {% else %}
+              <div class="chart">
+                <canvas id="piechart"></canvas>
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-md-6 p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+              <div class="chart">
+                <canvas id="barchart"></canvas>
+              </div>
+            </div>
+            <div class="col-md p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
+                <div id="advice-tips-carousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+                  <ol class="carousel-indicators">
+                    <li data-bs-target="#advice-tips-carousel" data-bs-slide-to="0" class="active"></li>
+                    <li data-bs-target="#advice-tips-carousel" data-bs-slide-to="1"></li>
+                    <li data-bs-target="#advice-tips-carousel" data-bs-slide-to="2"></li>
+                    <li data-bs-target="#advice-tips-carousel" data-bs-slide-to="3"></li>
+                    <li data-bs-target="#advice-tips-carousel" data-bs-slide-to="4"></li>
+                    <li data-bs-target="#advice-tips-carousel" data-bs-slide-to="5"></li>
+                  </ol>
+                  <div class="carousel-inner">
+                    <div class="carousel-item active">
+                      <div class="col p-2 lead">
+                        <h3 class="fw-bold text-center">Advice & Tips</h3>
+                        <a href="{% static 'images/tip1.png' %}">
+                          <img class="img-fluid d-block w-100" src="{% static 'images/tip1.png' %}" class="w-100" alt="">
+                        </a>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="col p-2 lead">
+                        <h3 class="fw-bold text-center">Advice & Tips</h3>
+                        <a href="{% static 'images/tip2.jpg' %}">
+                          <img class="img-fluid d-block w-100 p-5" src="{% static 'images/tip2.jpg' %}" class="w-100" alt="">
+                        </a>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="col p-2 lead">
+                        <h3 class="fw-bold text-center">Advice & Tips</h3>
+                        <a href="{% static 'images/tip3.jpg' %}">
+                          <img class="img-fluid d-block w-100" src="{% static 'images/tip3.jpg' %}" class="w-100" alt="">
+                        </a>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="col p-2 lead">
+                        <h3 class="fw-bold text-center">Advice & Tips</h3>
+                        <a href="{% static 'images/tip4.png' %}">
+                          <img class="img-fluid d-block w-100" src="{% static 'images/tip4.png' %}" class="w-100" alt="">
+                        </a>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="col p-2 lead">
+                        <h3 class="fw-bold text-center">Advice & Tips</h3>
+                        <a href="{% static 'images/tip5.png' %}">
+                          <img class="img-fluid d-block w-100" src="{% static 'images/tip5.png' %}" class="w-100" alt="">
+                        </a>
+                      </div>
+                    </div>
+                    <div class="carousel-item">
+                      <div class="col p-2 lead">
+                        <h3 class="fw-bold text-center">Advice & Tips</h3>
+                        <a href="{% static 'images/tip6.jpg' %}">
+                          <img class="img-fluid d-block w-100" src="{% static 'images/tip6.jpg' %}" class="w-100" alt="">
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                  <a class="carousel-control-next" href="#advice-tips-carousel" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                  </a>
+                </div>
+            </div>
+          </div>  
+      </div>
+        
+      <!-- electric modal -->
+      <div class="modal fade" id="electricModal" tabindex="-1" aria-labelledby="electricModalLabel">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header text-center justify-content-center align-items-center">
+              <h5 class=" text-center justify-content-center align-items-center" id="electricModalLabel">Add New Appliance</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/appliances/" method="post" id="electricity-form" class="p-3">
+                {% csrf_token %}
+                <div id="elec-form"></div>
+                <h2 class="text-center align-items-center justify-content-center">Electric Appliances</h2>
+                <span>Appliance*</span>
+                <select name="electricity_appliance" class="form-control" id="electricity_appliance_select">
+                  <option value="">Select an appliance</option>
+                  <option value="Washing Machine">Washing Machine</option>
+                  <option value="TV">TV</option>
+                  <option value="Microwave">Microwave</option>
+                  <option value="Kettle">Kettle</option>
+                  <option value="Computer">Computer</option>
+                  <option value="Dishwasher">Dishwasher</option>
+                  <option value="Dryer">Dryer</option>
+                  <option value="Electric Fan">Electric Fan</option>
+                  <option value="Electric Oven">Electric Oven</option>
+                  <option value="Electric Cooker">Electric Cooker</option>
+                  <option value="Iron">Electric Iron</option>
+                  <option value="Vacuum Cleaner">Vacuum Cleaner</option>
+                  <option value="Air Conditioner">Air Conditioner</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input type="text" class="form-control" name="electricity_appliance_name" id="electricity_appliance_name"
+                  placeholder="Enter appliance name" style="display: none" />
+                <br>
+                <span>Wattage*</span>
+                <input type="number" class="form-control" name="electricity_wattage" placeholder="Enter wattage" required />
+                <br>
+                <span>Usage in hours per day*</span>
+                <input type="number" class="form-control" step=".01" name="electricity_duration" placeholder="Enter duration"
+                  required />
+                <br>
+                <span>Date of usage*</span>
+                <input type="date" class="form-control" name="electricity_date" required>
+                <br>
+                <input type="hidden" name="appType" value="electricity">
+                <input type="hidden" name="dash" value="electricity">
+                <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+                <div class="modal-footer text-center align-items-center justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Add Appliance</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gas Appliance Modal -->
+      <div class="modal fade" id="gasModal" tabindex="-1" aria-labelledby="gasModalLabel">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header text-center justify-content-center align-items-center">
+              <h5 class=" text-center justify-content-center align-items-center" id="gasModalLabel">Add New Appliance</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="/appliances/" method="post" id="gas-form" class="p-3">
+                {% csrf_token %}
+                <div id="gas-form"></div>
+                <h2 class="text-center align-items-center justify-content-center">Gas Appliances</h2>
+                <span>Appliance*</span>
+                <select name="gas_appliance" class="form-control" id="gas_appliance_select">
+                  <option value="">Select an appliance</option>
+                  <option value="Gas Cooker">Gas Cooker</option>
+                  <option value="Gas Oven">Gas Oven</option>
+                  <option value="Gas Grill">Gas Grill</option>
+                  <option value="Fireplace">Fireplace</option>
+                  <option value="Radiator">Radiator</option>
+                  <option value="Pool heater">Pool heater</option>
+                  <option value="Patio heater">Patio heater</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input type="text" class="form-control" name="gas_appliance_name" id="gas_appliance_name"
+                  placeholder="Enter appliance name" style="display: none" />
+                <br>
+                <span>Wattage*</span>
+                <input type="number" class="form-control" name="gas_wattage" placeholder="Enter wattage" required />
+                <br>
+                <span>Usage in hours per day*</span>
+                <input type="number" class="form-control" step=".01" name="gas_duration" placeholder="Enter duration" required />
+                <br>
+                <span>Date of usage*</span>
+                <input type="date" class="form-control" name="gas_date" required>
+                <br>
+                <input type="hidden" name="appType" value="gas">
+                <input type="hidden" name="dash" value="gas">
+                <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+                <div class="modal-footer text-center align-items-center justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Add Appliance</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily budget modal -->
+      <div class="modal fade" id="dailyBudgetModal" tabindex="-1" aria-labelledby="dailyModalLabel">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header text-center justify-content-center align-items-center">
+              <h5 class=" text-center justify-content-center align-items-center" id="dailyModalLabel">Add/Update Budget</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="" method="post" id="daily-form" class="p-3">
+                {% csrf_token %}
+                <h2 class="text-center align-items-center justify-content-center">Daily Budget for {{ currentMonth }}</h2>
+                <br>
+                <div class="text-center justify-content-center align-items-center">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="electric" name="dash_elec">
+                    <label class="form-check-label text-center align-items-center justify-content-center" for="inlineCheckbox1"><p class="lead">Electricity</p></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="gas" name="dash_gas">
+                    <label class="form-check-label" for="inlineCheckbox2"><p class="lead">Gas</p></label>
+                  </div>
+                </div>
+                <input type="number" class="form-control" id="daily_goal" name="daily_goal" step="0.01" placeholder="Enter daily cost budget*" min="0" required>
+                <input type="hidden" name="budgetType" value="daily">
+                <br>
+                <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+                <div class="modal-footer text-center align-items-center justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Add Budget</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Budget modal -->
+      <div class="modal fade" id="weeklyBudgetModal" tabindex="-1" aria-labelledby="weeklyModalLabel">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header text-center justify-content-center align-items-center">
+              <h5 class=" text-center justify-content-center align-items-center" id="weeklyModalLabel">Add/Update Budget</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="" method="post" id="weekly-form" class="p-3">
+                {% csrf_token %}
+                <h2 class="text-center align-items-center justify-content-center">Weekly Budget for {{ currentMonth }}</h2>
+                <br>
+                <div class="text-center justify-content-center align-items-center">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="electric" name="dash_elec">
+                    <label class="form-check-label text-center align-items-center justify-content-center" for="inlineCheckbox1"><p class="lead">Electricity</p></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="gas" name="dash_gas">
+                    <label class="form-check-label" for="inlineCheckbox2"><p class="lead">Gas</p></label>
+                  </div>
+                </div>
+                <input type="number" class="form-control" id="weekly_goal" name="weekly_goal" step="0.01" placeholder="Enter weekly cost budget*" min="0" required>
+                <input type="hidden" name="budgetType" value="weekly">
+                <br>
+                <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+                <div class="modal-footer text-center align-items-center justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Add Budget</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Budget modal -->
+      <div class="modal fade" id="monthlyBudgetModal" tabindex="-1" aria-labelledby="monthlyModalLabel">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header text-center justify-content-center align-items-center">
+              <h5 class=" text-center justify-content-center align-items-center" id="monthlyModalLabel">Add/Update Budget</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form action="" method="post" id="monthly-form" class="p-3">
+                {% csrf_token %}
+                <h2 class="text-center align-items-center justify-content-center">Monthly Budget for {{ currentMonth }}</h2>
+                <br>
+                <div class="text-center justify-content-center align-items-center">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox11" value="electric" name="dash_elec">
+                    <label class="form-check-label text-center align-items-center justify-content-center" for="inlineCheckbox11"><p class="lead">Electricity</p></label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox22" value="gas" name="dash_gas">
+                    <label class="form-check-label" for="inlineCheckbox22"><p class="lead">Gas</p></label>
+                  </div>
+                </div>
+                <input type="number" class="form-control" id="monthly_goal" name="monthly_goal" step="0.01" placeholder="Enter monthly cost budget*" min="0" required>
+                <input type="hidden" name="budgetType" value="monthly">
+                <br>
+                <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+                <div class="modal-footer text-center align-items-center justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary">Add Budget</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% else %}
+      <div style="background-color: rgba(255, 255, 255, 0.75);" class="container w-50 rounded shadow p-3">
+        <div class="text-center">
+          <h1>You are not logged in!</h1>
+          <h2>Login <a href="/login">here.</a></h2>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+  <script>
+    const bar = document.getElementById('barchart');
+    const pie = document.getElementById('piechart');
+
+
+    new Chart(bar, {
+      type: 'bar',
+      data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+          backgroundColor: 
+          ['rgba(231, 76, 60, 0.7)', 'rgba(142, 68, 173, 0.7)',  'rgba(52, 152, 219, 0.7)',  'rgba(241, 196, 15, 0.7)',  'rgba(46, 204, 113, 0.7)',  'rgba(26, 188, 156, 0.7)',  'rgba(230, 126, 34, 0.7)',  'rgba(243, 156, 18, 0.7)',  'rgba(127, 140, 141, 0.7)',  'rgba(44, 62, 80, 0.7)',  'rgba(155, 89, 182, 0.7)',  'rgba(22, 160, 133, 0.7)'],
+          borderColor:
+          ['rgba(231, 76, 60, 1)', 'rgba(142, 68, 173, 1)',  'rgba(52, 152, 219, 1)',  'rgba(241, 196, 15, 1)',  'rgba(46, 204, 113, 1)',  'rgba(26, 188, 156, 1)',  'rgba(230, 126, 34, 1)',  'rgba(243, 156, 18, 1)',  'rgba(127, 140, 141, 1)',  'rgba(44, 62, 80, 1)',  'rgba(155, 89, 182, 1)',  'rgba(22, 160, 133, 1)'],
+          label: 'Total Electric Costs',
+          data: {{ echartData|safe }},
+          borderColor: '#FFFFFF',
+          stack: 'Stack 0'
+        },
+        {
+          label: 'Total Gas Costs',
+          data: {{ gchartData|safe }},
+          borderColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0', '#FFCD56', '#FF6384', '#36A2EB', '#FFCE56', '#FF9F40', '#4BC0C0', '#FFCD56'],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 205, 86, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 205, 86, 0.7)'
+          ],
+          stack: 'Stack 1'
+        }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: {
+              color: 'white'
+            },
+            grid: {
+              color: 'white'
+            },
+          },
+          x: {
+            stacked: true,
+            ticks: {
+              color: 'white'
+            },
+            grid: {
+              color: 'white'
+            },
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Total Electric & Gas Monthly Costs for {{currentYear}}',
+            font: {
+              size: 20,
+              weight: 'bold',
+            },
+            color: 'white'
+          },
+          legend: {
+            display: false
+          },
+        },
+      }
+    });
+
+    new Chart(pie, {
+      type: 'pie',
+      data: {
+        labels: [
+          '{{elecCostlyAppliance}}',
+          '{{gasCostlyAppliance}}',
+        ],
+        datasets: [{
+          label: 'Percentage',
+          data: [{{averageeHighest}}, {{averagegHighest}}],
+          backgroundColor: [
+            'rgba(0, 119, 190, 0.7)',
+            'rgba(255, 165, 0, 0.7)',
+          ],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        plugins: {
+          title: {
+            display: true,
+            text: 'Highest energy usage in {{currentMonth}} 2023',
+            font: {
+              size: 20,
+              weight: 'bold'
+            },
+            color: 'white'
+          },
+          legend: {
+            labels: {
+              color: 'white'
+            }
+          }
+        }
+      }
+    });
+
+  </script>
+  <script>
+    var x = document.getElementById("wrapper")
+    var toggle = document.getElementById("menu-toggle")
+
+    toggle.onclick = function () {
+      x.classList.toggle("toggled")
+    }
+
+    function validateForm() {
+      var selectedElecDate = new Date(document.querySelector('input[name="electricity_date"]').value);
+      var selectedGasDate = new Date(document.querySelector('input[name="gas_date"]').value);
+      var selectedGasDuration = document.querySelector('input[name="gas_duration"]').value;
+      var selectedElecDuration = document.querySelector('input[name="electricity_duration"]').value;
+
+      var currentDate = new Date();
+
+
+      if (selectedElecDate > currentDate) {
+          alert('Date cannot be in the future!');
+          return false;
+      }
+      if (selectedGasDate > currentDate) {
+          alert('Date cannot be in the future!');
+          return false;
+      }
+
+      if (selectedGasDuration > 24) {
+          alert("Daily hours cannot exceed 24!");
+          return false;
+      }
+
+      if (selectedElecDuration > 24) {
+          alert("Daily hours cannot exceed 24!");
+          return false;
+      }
+
+      return true;
+    };
+
+    const form = document.querySelector('#electricity-form');
+    const form2 = document.querySelector('#gas-form');
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        let form = event.currentTarget;
+
+        if (validateForm()) {
+          const formData = new FormData(form);
+          fetch(form.action, {
+              method: 'POST',
+              body: formData,
+          })
+          .then(response => {
+              if (response.ok) {
+                  showAlert('success', 'Appliance added successfully');
+              } else {
+                  showAlert('danger', 'An error occurred. Please try again.');
+              }
+          })
+          .catch(error => {
+              showAlert('danger', 'An error occurred. Please try again.');
+          });
+        }
+        // Submit the form using AJAX
+    });
+
+    form2.addEventListener('submit', (event) => {
+        event.preventDefault();
+        let form = event.currentTarget;
+
+        if (validateForm()) {
+          const formData = new FormData(form);
+          fetch(form.action, {
+              method: 'POST',
+              body: formData,
+          })
+          .then(response => {
+              if (response.ok) {
+                  showAlert2('success', 'Appliance added successfully');
+              } else {
+                  showAlert2('danger', 'An error occurred. Please try again.');
+              }
+          })
+          .catch(error => {
+              showAlert2('danger', 'An error occurred. Please try again.');
+          });
+        }
+        // Submit the form using AJAX
+    });
+
+    function showAlert(type, message) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} mt-3 text-center justify-content-center align-items-center`;
+        alert.textContent = message;
+        form.prepend(alert);
+
+        // Remove the alert after 3 seconds
+        setTimeout(() => {
+            location.reload();
+            alert.remove();
+        }, 3000);
+    }
+
+    function showAlert2(type, message) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} mt-3 text-center justify-content-center align-items-center`;
+        alert.textContent = message;
+        form2.prepend(alert);
+
+        // Remove the alert after 3 seconds
+        setTimeout(() => {
+            location.reload();
+            alert.remove();
+        }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const electricityApplianceSelect = document.getElementById('electricity_appliance_select');
+      const electricityApplianceName = document.getElementById('electricity_appliance_name');
+
+      const gasApplianceSelect = document.getElementById('gas_appliance_select');
+      const gasApplianceName = document.getElementById('gas_appliance_name');
+
+      electricityApplianceSelect.addEventListener('change', function () {
+          if (this.value === 'Other') {
+              electricityApplianceName.style.display = 'block';
+          } else {
+              electricityApplianceName.style.display = 'none';
+          }
+      });
+      gasApplianceSelect.addEventListener('change', function () {
+          if (this.value === 'Other') {
+              gasApplianceName.style.display = 'block';
+          } else {
+              gasApplianceName.style.display = 'none';
+          }
+      });
+    });
+  </script>
+</body>
+</html>
+{% endblock %}
+

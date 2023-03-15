@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'images/energylogo2.png' %}">
+  <title>Appliances</title>
+  <script type="text/javascript" src="{% static 'scripts/appliances.js' %}"></script>
+</head>
+
+<body>
+  {% if user.is_authenticated %}
+  <div class="container-fluid">
+    <!-- List user appliances -->
+    <div class="row align-items-center p-3 mb-2 justify-content-center ">
+      <div class="col-xl-5 p-3 d-flex justify-content-center align-items-center m-2 shadow"
+        style="background-color: rgba(1, 1, 1, 0.5); color:white">
+        <div id="elec-appliance-list" class="p-3 overflow-x-auto">
+          <h2 id="currentMonth">Your Electric Appliances [{{ currentMonth }}, 2023]</h2>
+          <table class="table table-bordered table-hover overflow-x-auto" style="color:white">
+            <thead>
+              <tr>
+                <th>Appliance</th>
+                <th>Wattage</th>
+                <th>Usage</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if userAppliances %}
+              {% for usage in applianceUsage %}
+              {% if usage.appliance.applianceType == 'Electricity' and usage.date|date:"F" == currentMonth %}
+              <tr>
+                <td>{{ usage.appliance.name }}</td>
+                <td>{{ usage.appliance.wattage }} watts</td>
+                <td>{{ usage.duration }}h per day</td>
+                <td>{{ usage.date }}</td>
+                <td>
+                  <button type="button" class="btn btn-warning" onclick="updateModal('{{ usage.appliance.id }}')"
+                    data-bs-toggle="modal" data-bs-target="#updateModal">↻</button>
+                  <button class="btn btn-danger" onclick="deleteAppliance('{{ usage.appliance.id }}')">x</button>
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" class="fw-bold text-center">You do not have any Electric Appliances added on this
+                  month!</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" onclick="showPreviousMonth('electricity')">←</button>
+            <button type="button" class="btn btn-secondary" onclick="showNextMonth('electricity')">→</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-5 p-3 d-flex justify-content-center align-items-center m-2 shadow"
+        style="background-color: rgba(1, 1, 1, 0.5)">
+        <div id="gas-appliance-list" class="p-3 overflow-x-auto" style="color:white">
+          <h2 id="gasCurrentMonth">Your Gas Appliances [{{ currentMonth }}, 2023]</h2>
+          <table class="table table-bordered table-hover" style="color:white">
+            <thead>
+              <tr>
+                <th>Appliance</th>
+                <th>Wattage</th>
+                <th>Usage</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if userAppliances %}
+              {% for usage in applianceUsage %}
+              {% if usage.appliance.applianceType == 'Gas' and usage.date|date:"F" == currentMonth %}
+              <tr>
+                <td>{{ usage.appliance.name }}</td>
+                <td>{{ usage.appliance.wattage }} watts</td>
+                <td>{{ usage.duration }}h per day</td>
+                <td>{{ usage.date }}</td>
+                <td>
+                  <button type="button" class="btn btn-warning" onclick="updateModal('{{ usage.appliance.id }}')"
+                    data-bs-toggle="modal" data-bs-target="#updateModal">↻</button>
+                  <button class="btn btn-danger" onclick="deleteAppliance('{{ usage.appliance.id }}')">x</button>
+                </td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" class="fw-bold text-center">You do not have any Gas Appliances added on this month!</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" onclick="showPreviousMonth('gas')">←</button>
+            <button type="button" class="btn btn-secondary" onclick="showNextMonth('gas')">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row align-items-center justify-content-center">
+      <div class="col-lg-5 p-3 d-flex">
+        <form action="" method="post"
+          onsubmit="event.preventDefault(); if (validateForm()) { alert('Appliance added successfully!'); this.submit(); }"
+          class="form-control p-3 shadow" style="background-color: rgba(1, 1, 1, 0.5); color:white">
+          {% csrf_token %}
+          <h2 class="text-center align-items-center justify-content-center">Electric Appliances</h2>
+          <span>Appliance*</span>
+          <select name="electricity_appliance" class="form-control" id="electricity_appliance_select">
+            <option value="">Select an appliance</option>
+            <option value="Washing Machine">Washing Machine</option>
+            <option value="TV">TV</option>
+            <option value="Microwave">Microwave</option>
+            <option value="Kettle">Kettle</option>
+            <option value="Computer">Computer</option>
+            <option value="Dishwasher">Dishwasher</option>
+            <option value="Dryer">Dryer</option>
+            <option value="Electric Fan">Electric Fan</option>
+            <option value="Electric Oven">Electric Oven</option>
+            <option value="Electric Cooker">Electric Cooker</option>
+            <option value="Iron">Electric Iron</option>
+            <option value="Vacuum Cleaner">Vacuum Cleaner</option>
+            <option value="Air Conditioner">Air Conditioner</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" class="form-control" name="electricity_appliance_name" id="electricity_appliance_name"
+            placeholder="Enter appliance name" style="display: none" />
+          <br>
+          <span>Wattage*</span>
+          <input type="number" class="form-control" name="electricity_wattage" placeholder="Enter wattage" required />
+          <br>
+          <span>Usage in hours per day*</span>
+          <input type="number" class="form-control" step=".01" name="electricity_duration" placeholder="Enter duration"
+            required />
+          <br>
+          <span>Date of usage*</span>
+          <input type="date" class="form-control" name="electricity_date" required>
+          <br>
+          <input type="hidden" name="appType" value="electricity">
+          <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+          <button type="submit" class="btn btn-success form-control">Add Appliance</button>
+        </form>
+      </div>
+      <div class="d-flex col-lg-5 p-3">
+        <form action="" method="post" class="form-control p-3 shadow"
+          onsubmit="event.preventDefault(); if (validateForm()) { alert('Appliance added successfully!'); this.submit(); }"
+          style="background-color: rgba(1, 1, 1, 0.5); color:white">
+          {% csrf_token %}
+          <h2 class="text-center align-items-center justify-content-center">Gas Appliances</h2>
+          <span>Appliance*</span>
+          <select name="gas_appliance" class="form-control" id="gas_appliance_select">
+            <option value="">Select an appliance</option>
+            <option value="Gas Cooker">Gas Cooker</option>
+            <option value="Gas Oven">Gas Oven</option>
+            <option value="Gas Grill">Gas Grill</option>
+            <option value="Fireplace">Fireplace</option>
+            <option value="Radiator">Radiator</option>
+            <option value="Pool heater">Pool heater</option>
+            <option value="Patio heater">Patio heater</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" class="form-control" name="gas_appliance_name" id="gas_appliance_name"
+            placeholder="Enter appliance name" style="display: none" />
+          <br>
+          <span>Wattage*</span>
+          <input type="number" class="form-control" name="gas_wattage" placeholder="Enter wattage" required />
+          <br>
+          <span>Usage in hours per day*</span>
+          <input type="number" class="form-control" step=".01" name="gas_duration" placeholder="Enter duration"
+            required />
+          <br>
+          <span>Date of usage*</span>
+          <input type="date" class="form-control" name="gas_date" required>
+          <br>
+          <input type="hidden" name="appType" value="gas">
+          <!-- <input type="submit" name="submit" value="Add Appliance"> -->
+          <button type="submit" class="btn btn-success form-control">Add Appliance</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header text-center justify-content-center align-items-center">
+          <h5 class=" text-center justify-content-center align-items-center" id="updateModalLabel">Edit Appliance</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="" method="POST" onsubmit="return validateUpdateForm()">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="applianceName">Appliance Name</label>
+              <input type="text" name="update_name" class="form-control" id="applianceName"
+                value="{{ appliance.name }}">
+              <br>
+            </div>
+            <div class="form-group">
+              <label for="applianceWattage">Wattage</label>
+              <input type="number" name="update_wattage" class="form-control" id="applianceWattage"
+                value="{{ appliance.wattage }}">
+              <br>
+            </div>
+            <div class="form-group">
+              <label for="applianceUsage">Usage (hours per day)</label>
+              <input type="number" step=".01" name="update_duration" class="form-control" id="applianceUsage"
+                value="{{ appliance.duration }}">
+              <br>
+            </div>
+            <div class="form-group">
+              <label for="applianceDate">Date of usage</label>
+              <input type="date" name="update_date" class="form-control" id="applianceUsage"
+                value="{{ appliance.date }}" required>
+              <br>
+            </div>
+            <div class="modal-footer text-center align-items-center justify-content-center">
+              <input type="hidden" name="update" value="1">
+              <input type="hidden" id="applianceId" name="id" value="{{ appliance.id }}">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  {% else %}
+  <div style="background-color: rgba(255, 255, 255, 0.75);" class="container w-50 rounded shadow p-3">
+    <div class="text-center">
+      <h1>You are not logged in!</h1>
+      <h2>Login <a href="/login">here.</a></h2>
+    </div>
+  </div>
+
+  {% endif %}
+</body>
+</html>
+{% endblock %}
