@@ -162,20 +162,24 @@
 
           <div class="row me-1">
             <div class="col-md-3 p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
-              {% if averageeHighest == 0 and averagegHighest == 0 %}
-              <div class="text-center">
-                <h6 class="lead">-- No Appliances Added --</h6>
-                <h5 class="lead"><i>Please add appliances to display piechart</i></h5>
+              <div class="text-center justify-content-center align-items-center">
+                {% if averageeHighest == 0 and averagegHighest == 0 %}
+                <div class="text-center">
+                  <h6 class="lead">-- No Appliances Added --</h6>
+                  <h5 class="lead"><i>Please add appliances to display piechart</i></h5>
+                </div>
+                {% else %}
+                <div class="chart">
+                  <canvas id="piechart"></canvas>
+                </div>
+                {% endif %}
               </div>
-              {% else %}
-              <div class="chart">
-                <canvas id="piechart"></canvas>
-              </div>
-              {% endif %}
             </div>
             <div class="col-md-6 p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
-              <div class="chart">
-                <canvas id="barchart"></canvas>
+              <div class="text-center justify-content-center align-items-center">
+                <div class="chart">
+                  <canvas id="barchart"></canvas>
+                </div>
               </div>
             </div>
             <div class="col-md p-4 m-2 shadow-lg rounded" style="background-color: rgba(1, 1, 1, 0.50); color:white;">
@@ -363,7 +367,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form action="" method="post" id="daily-form" class="p-3">
+              <form action="" method="post" id="daily-form" class="p-3" onsubmit="event.preventDefault(); if (validateForm()) { alert('Budget added/updated successfully!'); this.submit(); }">
                 {% csrf_token %}
                 <h2 class="text-center align-items-center justify-content-center">Daily Budget for {{ currentMonth }}</h2>
                 <br>
@@ -400,7 +404,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form action="" method="post" id="weekly-form" class="p-3">
+              <form action="" method="post" id="weekly-form" class="p-3" onsubmit="event.preventDefault(); if (validateForm()) { alert('Budget added/updated successfully!'); this.submit(); }">
                 {% csrf_token %}
                 <h2 class="text-center align-items-center justify-content-center">Weekly Budget for {{ currentMonth }}</h2>
                 <br>
@@ -437,7 +441,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <form action="" method="post" id="monthly-form" class="p-3">
+              <form action="" method="post" id="monthly-form" class="p-3" onsubmit="event.preventDefault(); if (validateForm()) { alert('Budget added/updated successfully!'); this.submit(); }">
                 {% csrf_token %}
                 <h2 class="text-center align-items-center justify-content-center">Monthly Budget for {{ currentMonth }}</h2>
                 <br>
@@ -696,7 +700,7 @@
         setTimeout(() => {
             location.reload();
             alert.remove();
-        }, 3000);
+        }, 1500);
     }
 
     function showAlert2(type, message) {
@@ -709,7 +713,7 @@
         setTimeout(() => {
             location.reload();
             alert.remove();
-        }, 3000);
+        }, 1500);
     }
 
     document.addEventListener('DOMContentLoaded', function () {

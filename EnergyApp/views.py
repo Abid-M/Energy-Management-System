@@ -901,7 +901,8 @@ def budget(request):
         if currentBudget:
             if request.POST.get('electricity'):
                 for budget in currentBudget:
-
+                    print(request.POST)
+                    
                     dailyBudget = request.POST.get('edaily_goal', '')
                     dailyBudget = decimal.Decimal(dailyBudget) if dailyBudget else None
 
@@ -912,11 +913,11 @@ def budget(request):
                     monthlyBudget = decimal.Decimal(monthlyBudget) if monthlyBudget else None
 
 
-                    if dailyBudget:
+                    if dailyBudget is not None:
                         budget.dailyElecCostBudget = dailyBudget
-                    if weeklyBudget:
+                    if weeklyBudget is not None:
                         budget.weeklyElecCostBudget = weeklyBudget
-                    if monthlyBudget:
+                    if monthlyBudget is not None:
                         budget.monthlyElecCostBudget = monthlyBudget
 
                     budget.save()
@@ -933,11 +934,11 @@ def budget(request):
                     monthlyBudget = request.POST.get('gmonthly_goal', '')
                     monthlyBudget = decimal.Decimal(monthlyBudget) if monthlyBudget else None
 
-                    if dailyBudget:
+                    if dailyBudget is not None:
                         budget.dailyGasCostBudget = dailyBudget
-                    if weeklyBudget:
+                    if weeklyBudget is not None:
                         budget.weeklyGasCostBudget = weeklyBudget
-                    if monthlyBudget:
+                    if monthlyBudget is not None:
                         budget.monthlyGasCostBudget = monthlyBudget
 
                     budget.save()
